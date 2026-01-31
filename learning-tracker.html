@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+        
+        .learning-card {
+            transition: all 0.3s ease;
+        }
+        
+        .learning-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 136, 0, 0.3);
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        
+        .checkbox-orange:checked {
+            background-color: #ff8800;
+            border-color: #ff8800;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #ff8800;
+            border-radius: 4px;
+        }
+        
+        .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+            background: #ff9922;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-100">
+    <div id="app" class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-300">
+                    🎯 Learning Tracker
+                </h1>
+                <div class="flex gap-4 items-center">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-400">Total Progress</p>
+                        <p class="text-2xl font-bold text-orange-500" id="totalProgress">0%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Total Topics</p>
+                            <p class="text-2xl font-bold text-orange-500" id="totalTopics">0</p>
+                        </div>
+                        <div class="bg-orange-500 bg-opacity-20 rounded-full p-3">
+                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Completed</p>
+                            <p class="text-2xl font-bold text-green-500" id="completedTopics">0</p>
+                        </div>
+                        <div class="bg-green-500 bg-opacity-20 rounded-full p-3">
+                            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">In Progress</p>
+                            <p class="text-2xl font-bold text-orange-500" id="inProgressTopics">0</p>
+                        </div>
+                        <div class="bg-orange-500 bg-opacity-20 rounded-full p-3">
+                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Current Streak</p>
+                            <p class="text-2xl font-bold text-orange-500" id="currentStreak">0</p>
+                        </div>
+                        <div class="bg-orange-500 bg-opacity-20 rounded-full p-3">
+                            <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Streak Calendar -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-orange-500">Monthly Activity</h2>
+                    <div class="flex items-center gap-4">
+                        <button onclick="changeMonth(-1)" class="text-gray-400 hover:text-orange-500 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <span class="text-gray-300 font-semibold" id="currentMonth">January 2026</span>
+                        <button onclick="changeMonth(1)" class="text-gray-400 hover:text-orange-500 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Calendar Grid -->
+                <div class="grid grid-cols-7 gap-2">
+                    <!-- Day headers -->
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Sun</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Mon</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Tue</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Wed</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Thu</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Fri</div>
+                    <div class="text-center text-xs text-gray-500 font-semibold py-2">Sat</div>
+                    
+                    <!-- Calendar days -->
+                    <div id="calendarGrid" class="col-span-7 grid grid-cols-7 gap-2"></div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-700">
+                    <span class="text-xs text-gray-400">Less</span>
+                    <div class="flex gap-1">
+                        <div class="w-5 h-5 bg-gray-700 rounded" title="No activity"></div>
+                        <div class="w-5 h-5 bg-orange-900 bg-opacity-30 rounded" title="1-2 topics"></div>
+                        <div class="w-5 h-5 bg-orange-700 bg-opacity-50 rounded" title="3-5 topics"></div>
+                        <div class="w-5 h-5 bg-orange-500 bg-opacity-70 rounded" title="6-10 topics"></div>
+                        <div class="w-5 h-5 bg-orange-500 rounded" title="10+ topics"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">More</span>
+                </div>
+            </div>
+            
+            <!-- Add New Topic -->
+            <div class="bg-gray-800 rounded-lg p-4 border border-orange-500 border-opacity-30">
+                <div class="flex gap-3">
+                    <input 
+                        type="text" 
+                        id="newTopicInput" 
+                        placeholder="Add a new topic to learn..."
+                        class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-orange-500 transition-colors"
+                    />
+                    <button 
+                        onclick="addNewTopic()" 
+                        class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Topic
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Learning Categories -->
+        <div id="categoriesContainer" class="space-y-6 scrollbar-custom"></div>
+    </div>
+
+    <script>
+        // IndexedDB Setup
+        let db;
+        const DB_NAME = 'LearningTrackerDB';
+        const DB_VERSION = 2;
+        const STORE_NAME = 'topics';
+        const ACTIVITY_STORE = 'activity';
+
+        // Initialize IndexedDB
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    
+                    // Topics store
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        objectStore.createIndex('category', 'category', { unique: false });
+                        objectStore.createIndex('completed', 'completed', { unique: false });
+                    }
+                    
+                    // Activity store for tracking daily completions
+                    if (!db.objectStoreNames.contains(ACTIVITY_STORE)) {
+                        const activityStore = db.createObjectStore(ACTIVITY_STORE, { keyPath: 'date' });
+                        activityStore.createIndex('count', 'count', { unique: false });
+                    }
+                };
+            });
+        }
+
+        // Preloaded topics data
+        const preloadedTopics = [
+            { category: 'MONGODB', name: 'MONGODB', completed: true },
+            { category: 'JavaScript', name: 'JS', completed: false },
+            { category: 'JavaScript', name: 'REACT-JS', completed: false },
+            { category: 'JavaScript', name: 'Redux', completed: false },
+            { category: 'DSA - Basics', name: 'Sorting', completed: false },
+            { category: 'DSA - Basics', name: 'Linked list', completed: false },
+            { category: 'DSA - Basics', name: 'Queue', completed: false },
+            { category: 'DSA - Basics', name: 'Stack', completed: false },
+            { category: 'DSA - Basics', name: 'Recursion', completed: false },
+            { category: 'DSA - Basics', name: 'Heap map', completed: false },
+            { category: 'Tree & Graph', name: 'Binary Tree', completed: false },
+            { category: 'Tree & Graph', name: 'BST', completed: false },
+            { category: 'Tree & Graph', name: 'Graph', completed: false },
+            { category: 'Tree & Graph', name: 'Heap', completed: false },
+            { category: 'Tree & Graph', name: 'Tries', completed: false },
+            { category: 'Skills', name: 'English improve', completed: false }
+        ];
+
+        // Database operations
+        async function addTopic(topic) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.add(topic);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getAllTopics() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.getAll();
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function updateTopic(id, updates) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.get(id);
+                
+                request.onsuccess = () => {
+                    const data = request.result;
+                    Object.assign(data, updates);
+                    const updateRequest = objectStore.put(data);
+                    updateRequest.onsuccess = () => resolve(updateRequest.result);
+                    updateRequest.onerror = () => reject(updateRequest.error);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteTopic(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.delete(id);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Activity tracking functions
+        async function recordActivity(count) {
+            const today = new Date().toISOString().split('T')[0];
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([ACTIVITY_STORE], 'readwrite');
+                const objectStore = transaction.objectStore(ACTIVITY_STORE);
+                const request = objectStore.get(today);
+                
+                request.onsuccess = () => {
+                    const existing = request.result;
+                    const data = {
+                        date: today,
+                        count: existing ? existing.count + count : count
+                    };
+                    const updateRequest = objectStore.put(data);
+                    updateRequest.onsuccess = () => resolve(updateRequest.result);
+                    updateRequest.onerror = () => reject(updateRequest.error);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getActivityForMonth(year, month) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([ACTIVITY_STORE], 'readonly');
+                const objectStore = transaction.objectStore(ACTIVITY_STORE);
+                const request = objectStore.getAll();
+                
+                request.onsuccess = () => {
+                    const allActivity = request.result;
+                    const monthActivity = allActivity.filter(activity => {
+                        const activityDate = new Date(activity.date);
+                        return activityDate.getFullYear() === year && activityDate.getMonth() === month;
+                    });
+                    resolve(monthActivity);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getAllActivity() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([ACTIVITY_STORE], 'readonly');
+                const objectStore = transaction.objectStore(ACTIVITY_STORE);
+                const request = objectStore.getAll();
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Calendar state
+        let currentCalendarDate = new Date();
+
+        // Render calendar
+        async function renderCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const activity = await getActivityForMonth(year, month);
+            const activityMap = {};
+            activity.forEach(a => {
+                activityMap[a.date] = a.count;
+            });
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+            
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'aspect-square';
+                calendarGrid.appendChild(emptyCell);
+            }
+            
+            // Days of the month
+            const today = new Date().toISOString().split('T')[0];
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const count = activityMap[dateStr] || 0;
+                
+                const dayCell = document.createElement('div');
+                dayCell.className = 'aspect-square rounded-lg flex items-center justify-center text-sm font-semibold transition-all hover:scale-110 cursor-pointer relative';
+                
+                // Color based on activity
+                if (count === 0) {
+                    dayCell.className += ' bg-gray-700 text-gray-500';
+                } else if (count <= 2) {
+                    dayCell.className += ' bg-orange-900 bg-opacity-30 text-orange-300';
+                } else if (count <= 5) {
+                    dayCell.className += ' bg-orange-700 bg-opacity-50 text-orange-200';
+                } else if (count <= 10) {
+                    dayCell.className += ' bg-orange-500 bg-opacity-70 text-white';
+                } else {
+                    dayCell.className += ' bg-orange-500 text-white';
+                }
+                
+                // Highlight today
+                if (dateStr === today) {
+                    dayCell.className += ' ring-2 ring-orange-400';
+                }
+                
+                dayCell.innerHTML = `
+                    <span>${day}</span>
+                    ${count > 0 ? `<div class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">${count}</div>` : ''}
+                `;
+                
+                dayCell.title = `${dateStr}: ${count} topic${count !== 1 ? 's' : ''} completed`;
+                
+                calendarGrid.appendChild(dayCell);
+            }
+            
+            await calculateStreak();
+        }
+
+        // Change month
+        function changeMonth(direction) {
+            currentCalendarDate = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + direction, 1);
+            renderCalendar();
+        }
+
+        // Calculate streak
+        async function calculateStreak() {
+            const allActivity = await getAllActivity();
+            if (allActivity.length === 0) {
+                document.getElementById('currentStreak').textContent = '0 days';
+                return;
+            }
+            
+            // Sort by date descending
+            allActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let streak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let currentDate = new Date(today);
+            
+            for (const activity of allActivity) {
+                const activityDate = new Date(activity.date);
+                activityDate.setHours(0, 0, 0, 0);
+                
+                const diffTime = currentDate - activityDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0 || diffDays === 1) {
+                    streak++;
+                    currentDate = new Date(activityDate);
+                } else {
+                    break;
+                }
+            }
+            
+            document.getElementById('currentStreak').textContent = `${streak} day${streak !== 1 ? 's' : ''}`;
+        }
+
+        // Preload data if database is empty
+        async function preloadData() {
+            const topics = await getAllTopics();
+            if (topics.length === 0) {
+                for (const topic of preloadedTopics) {
+                    await addTopic(topic);
+                }
+            }
+        }
+
+        // Render topics
+        async function renderTopics() {
+            const topics = await getAllTopics();
+            
+            // Group topics by category
+            const grouped = topics.reduce((acc, topic) => {
+                if (!acc[topic.category]) {
+                    acc[topic.category] = [];
+                }
+                acc[topic.category].push(topic);
+                return acc;
+            }, {});
+
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            // Render each category
+            for (const [category, categoryTopics] of Object.entries(grouped)) {
+                const completed = categoryTopics.filter(t => t.completed).length;
+                const total = categoryTopics.length;
+                const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'bg-gray-800 rounded-lg p-6 border border-gray-700 learning-card';
+                categoryCard.innerHTML = `
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h2 class="text-2xl font-bold text-orange-500">${category}</h2>
+                            <span class="text-gray-400 text-sm">${completed}/${total} completed</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="progress-bar bg-orange-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${categoryTopics.map(topic => `
+                            <div class="flex items-center justify-between bg-gray-900 rounded-lg p-3 hover:bg-gray-850 transition-colors">
+                                <label class="flex items-center flex-1 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        ${topic.completed ? 'checked' : ''} 
+                                        onchange="toggleTopic(${topic.id})"
+                                        class="checkbox-orange w-5 h-5 rounded border-gray-600 text-orange-500 focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                                    />
+                                    <span class="ml-3 text-gray-100 ${topic.completed ? 'line-through text-gray-500' : ''}">${topic.name}</span>
+                                </label>
+                                <button 
+                                    onclick="removeTopicConfirm(${topic.id}, '${topic.name}')" 
+                                    class="ml-4 text-red-500 hover:text-red-400 transition-colors"
+                                    title="Delete topic"
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(categoryCard);
+            }
+
+            updateStats();
+        }
+
+        // Toggle topic completion
+        async function toggleTopic(id) {
+            const topics = await getAllTopics();
+            const topic = topics.find(t => t.id === id);
+            const newCompletedState = !topic.completed;
+            
+            await updateTopic(id, { completed: newCompletedState });
+            
+            // Record activity if completing (not uncompleting)
+            if (newCompletedState) {
+                await recordActivity(1);
+                await renderCalendar();
+            }
+            
+            renderTopics();
+        }
+
+        // Add new topic
+        async function addNewTopic() {
+            const input = document.getElementById('newTopicInput');
+            const topicName = input.value.trim();
+            
+            if (!topicName) {
+                alert('Please enter a topic name');
+                return;
+            }
+
+            const category = prompt('Enter category (e.g., JavaScript, DSA, etc.):', 'General');
+            if (!category) return;
+
+            await addTopic({
+                category: category.trim(),
+                name: topicName,
+                completed: false
+            });
+
+            input.value = '';
+            renderTopics();
+        }
+
+        // Remove topic with confirmation
+        async function removeTopicConfirm(id, name) {
+            if (confirm(`Are you sure you want to delete "${name}"?`)) {
+                await deleteTopic(id);
+                renderTopics();
+            }
+        }
+
+        // Update statistics
+        async function updateStats() {
+            const topics = await getAllTopics();
+            const completed = topics.filter(t => t.completed).length;
+            const total = topics.length;
+            const inProgress = total - completed;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTopics').textContent = total;
+            document.getElementById('completedTopics').textContent = completed;
+            document.getElementById('inProgressTopics').textContent = inProgress;
+            document.getElementById('totalProgress').textContent = progress + '%';
+        }
+
+        // Handle Enter key in input
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('newTopicInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addNewTopic();
+                }
+            });
+        });
+
+        // Initialize app
+        async function init() {
+            await initDB();
+            await preloadData();
+            renderTopics();
+            renderCalendar();
+        }
+
+        init();
+    </script>
+</body>
+</html>
